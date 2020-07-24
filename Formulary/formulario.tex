@@ -1,0 +1,192 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Formal Methods Formulas and Algorithm}
+\author{Nicola Di Santo }
+\date{July 2020}
+
+\usepackage[a4paper,margin=1.5cm]{geometry}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{setspace}
+\DeclareRobustCommand{\impl}{\text{\reflectbox{$\subset$}}}
+
+
+\begin{document}
+
+\maketitle
+\section{Introduciton}
+this document is a collection of formulas to use during formal methods exercises. The .tex file is available to make it always richer, bigger and better. 
+
+\twocolumn
+
+\section{FOL}
+\textbf{$\alpha$-rules}:\newline
+$\frac{\phi \wedge \psi}{\substack{\phi\\\psi}} $ 
+$\frac{\neg(\phi \vee \psi)}{\substack{\neg\phi\\\neg\psi}} $ 
+$\frac{\neg(\phi \impl \psi)}{\substack{\phi\\\neg\psi}} $
+$\frac{\neg\neg\phi}{\phi} $ \\
+
+\textbf{$\beta$-rules}:\newline
+$\frac{\phi \vee \psi}{\phi|\psi} $ 
+$\frac{\neg(\phi \wedge \psi)}{\neg\phi|\neg\psi} $ 
+$\frac{\phi \impl \psi}{\neg\phi|\psi} $ \\
+
+\textbf{extra-rules}:\newline
+$\frac{\substack{\phi\\\neg\phi}}{X} $ 
+$\frac{\phi \equiv \psi)}{\substack{\phi|\neg\phi\\\psi|\neg\psi}} $ 
+$\frac{\neg(\phi \equiv \psi)}{\substack{\neg\phi\\\psi}\substack{|\\|} \substack{\phi\\\neg\psi}} $ \\
+
+\textbf{$\delta$-rules}:\newline
+$\frac{\forall x.\phi(x) }{\phi(t)} $ 
+$\frac{\neg\exists x.\phi(x) }{\neg\phi(t)} $\\
+
+\textbf{$\gamma$-rules}:\newline
+$\frac{\neg\forall x.\phi(x) }{\neg\phi(c)} $ 
+$\frac{\exists x.\phi(x) }{\phi(c)} $\\
+
+\textbf{Tableaux}: \\
+prove $\phi\equiv\psi$: check $\neg(\phi\equiv\psi)$ is UNSAT\newline
+$\phi$ is valid: $\neg\phi$ is UNSAT\newline
+$\Gamma\models\phi$: check $\Gamma\cup\neg\phi$ closes (UNSAT)\newline
+$\Gamma$ SAT: check for an open branch of $\Gamma$\newline
+In general each existential is a fresh new constant while universal can be any term also the constant of the existential. To clash instantiate existential and then use universal to make the clash.
+
+\section{UML TO FOL}
+a is the attribute name,A the association name, C is the class name, T is the type name, i and j the multiplicities, P is type name for parameter, R is type name for return value.
+Class: 
+\newline 
+$\forall x,y. a(x,y) \impl C(x) \wedge T(y)$ \newline 
+$\forall x. C(x) \impl i\leq\{y|a(x,y)\}\leq j $\\
+
+Association: 
+\newline $\forall x_1,...,x_n . A(x_1,...,x_n) \impl C(x_1) \wedge ... C(x_n)$ \newline 
+$\forall x_1. C(x_1) \impl i\leq\{x2|a(x_1,x_2,...)\}\leq j $\newline
+$\forall x_2. C(x_2) \impl i\leq\{x1|a(x_1,x_2,...)\}\leq j $ \\
+
+Generalization: 
+\newline $\forall x. C_i(x) \impl C(x) for i=1,...,n $ (is-a) \newline 
+$\forall x. C_i(x) \impl \neg C_j(x) for i\not=j $ (disjoint)\newline
+$\forall x. C(x) \impl C_1 \vee.. \vee C_i(x)...\vee C_n(x)  $ (completeness) \\
+
+Subset:\newline
+$\forall x,y . assoc_1(x,y)\impl assoc_2(x,y)$ can refine mult. \\
+
+Association Class: \newline
+$\forall x,y,z. a(x,y,z) \impl A(x,y)\wedge T(z)$\newline
+$\forall x,y  A(x,y) \impl \forall z. i \leq \{z|a(x,y,z)\}\leq j$ + assoc mult.\\
+
+Reification (when assoc is a class+key constr):\newline
+$\forall x,y r_i(x,y) \impl A(x) \wedge C_i(y) for i=1,..,n$\newline
+$\forall x  A(x) \impl \exists y. r_i(x,y) for i=1,..,n$\newline
+$\forall x,y,y'  r_i(x,y) \wedge r_i(x,y') \impl y=y' for i=1,..,n$\newline
+$\forall y_1,...,y_n,x,x'. \wedge_{i=1}^{n} r_i(x,y_i)\wedge r_i(x',y_i)  \impl x=x'$\\
+
+Methods: \newline
+\sloppy %to break formula into multiline
+$\forall x,p_1,...,p_m,r . f_{C,P_1,...,P_m}(x,p_1,...,p_m,r) \impl C(x) \wedge (\wedge_{i=i}^{m}P_i(p_i))\wedge R(r) $ \newline
+$\forall x,p_1,...,p_m,r,r' . f_{C,P_1,...,P_m}(x,p_1,...,p_m,r) \wedge f_{C,P_1,...,P_m}(x,p_1,...,p_m,r') \impl r=r' $ \\
+
+\section{Evaluation Semantic}
+
+$\frac{(a,s)\rightarrow s'}{true}$ if $s \models Pre(a) \wedge s'\models Post(a,s)$\\ [2mm]
+$\frac{(skip,s)\rightarrow s}{true}$ \\[2mm]
+$\frac{(\delta_1;\delta_2,s_0)\rightarrow s_f}{(\delta_1,s_0)\rightarrow s_1 \wedge (\delta_2,s_1)\rightarrow s_f }$ \\[2mm]
+$\frac{( if (\phi) then\{ \delta_1\} else \{ \delta_2\} ,s)\rightarrow s'}{(\delta_1,s)->s'}, s\models\phi$ \\[2mm]
+$\frac{( if (\phi) then \{ \delta_1\} else \{ \delta_2\} ,s)\rightarrow s'}{(\delta_2,s)->s'}, s\not\models\phi$ \\[2mm]
+$\frac{(while (\phi) do\{\delta\}, s)\rightarrow s'}{(\delta,s)\rightarrow s'' \wedge (while \phi do\{\delta\}, s'')\rightarrow s' }, s\models\phi$\\[2mm]
+$\frac{(while (\phi) do\{\delta\}, s)\rightarrow s'}{true}, s\not\models\phi$\\
+
+\section{Transition Semantic}
+\subsection{Transition Rules}
+$\frac{(a,s)\rightarrow(\epsilon,s')}{true}$ if $s \models Pre(a) \wedge s'\models Post(a,s)$ \\[2mm]
+$\frac{(skip,s)\rightarrow(\epsilon,s')}{true}$ \\[2mm]
+$\frac{(\delta_1;\delta_2,s)\rightarrow(\delta_1';\delta_2,s')}{(\delta_1,s)\rightarrow(\delta_1',s')}$ \\[2mm]
+$\frac{(\delta_1;\delta_2,s)\rightarrow(\delta_2',s')}{(\delta_2,s)\rightarrow(\delta_2',s')}$ if $(\delta_1,s)^{\surd}$\\[2mm]
+$\frac{(if(\\phi)then\{\delta_1\}else\{\delta_2\},s)\rightarrow(\delta_1',s')}{ (\delta_1,s)\rightarrow(\delta_1',s')}$ if $s\models\phi$ \\[2mm]
+$\frac{(if(\\phi)then\{\delta_1\}else\{\delta_2\},s)\rightarrow(\delta_2',s')}{ (\delta_2,s)\rightarrow(\delta_2',s')}$ if $s\not\models\phi$ \\[2mm]
+$\frac{(while(\phi)do\{\delta\},s)\rightarrow(\delta';while(\phi)do\{\delta\},s')}{\delta,s)\rightarrow(\delta',s')} if s\models\phi$
+\subsection{Termination Rules}
+$\frac{(\epsilon,s)^{\surd}}{true}$\\[2mm]
+$\frac{(\delta_1;\delta_2,s)^{\surd}}{(\delta_1,s)^{\surd}\wedge(\delta_2,s)^{\surd}}$\\[2mm]
+$\frac{(if(\\phi)then\{\delta_1\}else\{\delta_2\},s)^{\surd}}{(\delta_1,s)^{\surd}}$\\[2mm]
+$\frac{(if(\\phi)then\{\delta_1\}else\{\delta_2\},s)^{\surd}}{(\delta_2,s)^{\surd}}$\\[2mm]
+$\frac{(while(\phi)do\{\delta\},s)^{\surd}}{true}, if s\models\neg\phi$\\[2mm]
+$\frac{(while(\phi)do\{\delta\},s)^{\surd}}{(\delta,s)^{\surd}}, if s\models\phi$\\[2mm]
+\section{Hoare Logic}
+$P\Rightarrow I$ \newline
+$(\neg g \wedge I)\Rightarrow Q$ \newline
+$\{g \wedge I\}S\{I\}$: find wp of S and check if $(g \wedge I)\Rightarrow wp$
+
+\section{CTL TO $\mu$-CALC}
+$EX p: <->p$\\
+$AX p: [-]p$\\
+$EF p: \mu X.p\vee<->X $\\
+$AFp: \mu X.p\vee[-]X $\\
+$pEUq: \mu X. q\vee p \wedge <->q $\\
+$pAUq: \mu X. q\vee p \wedge [-]q $\\
+$EGp: \nu X.p\wedge<->X$\\
+$AGp: \nu X.p\wedge[-]X$\\
+
+\section{Conjunctive Queries}
+
+	\begin{algorithm}
+		\KwIn{q: conj query}
+		$\Delta^{I_q}$ = all constant and variable of q \;
+		$P^{I_q}={(t_1,...,t_n),...} $for all $P_i(t_1,...,t_n)$ in q\;
+		$c^{I_q}=c$ c is in q \;
+		\caption{Canonical Interpretation}
+	\end{algorithm}
+
+	\begin{algorithm}
+		\KwIn{q: conj query\\I: interpretation (DB)}
+		write q in canonical Interp.\;
+		find assignment $\alpha(.)$ for each variable in q\;
+		assign to each constant itself: $\alpha(c)=c$ \;
+		\Return $\alpha$ as the homomorphism between I and $I_q$ if exist or $I\not\models q$\;
+		\caption{$I\models q$ ($\exists h(I_q)=I$)}
+	\end{algorithm}
+
+	\begin{algorithm}
+		\KwIn{$q_1$: conj query\\$q_2$: conj query\\
+	show $q_1 \subseteq q_2$i.e. $q_2 \Rightarrow q_1$}
+		\Begin(containement){
+			freeze all variable by assigning a constant: assume $q_1(x,y)\leftarrow e(x,y,z)...$ you must freeze only the one in the argument $q_1(c_1,c_2)\leftarrow e(c_1,c_2,z)...$ \;
+			build $I_{q_1}$\;
+			check if db tables of $I_{q_1}$ are true in $q_2$: find an assignment to $q_2$ variables that makes $I_{q_1}\models q_2$ by guessing \;
+		}
+		\Begin(homomorphism){
+			\tcc{To verify the homomorphism check $I_{q_1}\models q2$ iff $\exists h.I_{q_2}\Rightarrow I_{q_1} $} 
+			compute $I_{q_2}$ as interpretation of $q_2$ \;
+			compute mapping from object o$I_{q_2}$ to $\delta^{I_{q_1}}$ \;
+			check if mapping holds also for tuples \;
+		}
+		
+		\caption{$q_1\subseteq q_2$}
+	\end{algorithm}
+
+	\begin{algorithm}
+		\KwIn{q: conj query\\Incomplete DB}
+		transform DB into $q_D$ where each null become an existentially quantified variable \;
+		DB$\models q$ iff $q_D \subseteq q$ (see containment algorithm)\;
+		
+		\caption{Check if incomplete db $\models q$}
+	\end{algorithm}
+
+
+\section{Bisimilarity}
+
+A state $s_0$ of transition system S is bisimilar, or simply equivalent, to a state $t_0$ of transition system T iff there exists a bisimulation between the initial states $s_0$ and $t_0$ (note: bisimilarity  the largest bisimulation). \\ A binary relation R is a bisimulation if $(s,t)\in R$ implies that s is final iff t is final and for all action a if $s\rightarrow_a s'$ then $\exists t'. t\rightarrow_a t' and (s',t')\in R $ if $t\rightarrow_a t'$ then $\exists s'. s\rightarrow_a s' and (s',t')\in R $ \\
+
+\begin{algorithm}
+	\KwIn{T, S}
+	Compute R = $T\times S$ \;
+	remove from R all tuples (s,t) where s is final and t is not and vice versa \;
+	remove from R all tuples (s,t) where s can do $a_i$ and t cannot (and vice versa)\;
+	remove from R all tuples ($s_i,t_j$) that can reach (s',t') but then (s',t') is not in R \;
+	\Return R\;
+	\caption{Check Bisimulation between T and S}
+\end{algorithm}
+\end{document}
